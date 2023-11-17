@@ -184,4 +184,17 @@ def delete_paziente(pazienteId: int, db: Session = Depends(get_db)):
 @app.get("/get_pazienti", response_model=List[PazienteDto])
 def get_pazienti(db: Session = Depends(get_db)):
     pazienti = db.query(Paziente).all()
-    return pazienti
+    
+    # Converte gli oggetti Paziente in oggetti PazienteDto
+    pazienti_dto = [
+        PazienteDto(
+            nome=paziente.nome,
+            cognome=paziente.cognome,
+            data_nascita=paziente.data_nascita,
+            codice_fiscale=paziente.codice_fiscale,
+            patologia=paziente.patologia,
+            sesso=paziente.sesso
+        ) for paziente in pazienti
+    ]
+
+    return pazienti_dto
