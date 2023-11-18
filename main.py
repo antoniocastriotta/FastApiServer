@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from pydantic import BaseModel
 from typing import List
+import logging
 
 # Configura l'URL del tuo database AWS RDS
 DATABASE_URL = "mysql://admin:P47#$53PNde@mydb.czqucuuf76q6.eu-central-1.rds.amazonaws.com/Pazientidatabase"
@@ -19,6 +20,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Dichiarazione della base per i modelli SQLAlchemy
 Base = declarative_base()
+
+# Configura il logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Definizione del modello per la tabella dei pazienti
 class Paziente(Base):
@@ -73,6 +78,9 @@ def get_db():
 # Implementazione delle richieste
 @app.post("/salva_paziente")
 def salva_paziente(pazienteDto: PazienteDto, db: Session = Depends(get_db)):
+    # Logga i dati ricevuti
+    logger.debug("Dati ricevuti dal client per /salva_paziente: %s", pazienteDto.dict())
+
     # Effettua la logica per salvare il paziente nel database
     nuovo_paziente = Paziente(**pazienteDto.dict())
     db.add(nuovo_paziente)
