@@ -54,7 +54,6 @@ Base.metadata.create_all(bind=engine)
 
 # Modello Pydantic per il DTO del Paziente
 class PazienteDto(BaseModel):
-    id: int
     nome: str
     cognome: str
     data_nascita: str
@@ -114,7 +113,6 @@ def get_paziente(pazienteId: int, db: Session = Depends(get_db)):
 
     # Converte il modello SQLAlchemy in DTO Pydantic per la risposta API
     paziente_dto = PazienteDto(
-        id=paziente.id,
         nome=paziente.nome,
         cognome=paziente.cognome,
         data_nascita=paziente.data_nascita,
@@ -195,7 +193,6 @@ def get_pazienti(db: Session = Depends(get_db)):
     # Converte gli oggetti Paziente in oggetti PazienteDto
     pazienti_dto = [
         PazienteDto(
-            id=paziente.id,
             nome=paziente.nome,
             cognome=paziente.cognome,
             data_nascita=paziente.data_nascita,
