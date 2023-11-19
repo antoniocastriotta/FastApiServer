@@ -64,7 +64,6 @@ class PazienteDto(BaseModel):
 
 # Modello Pydantic per il DTO dell'Acquisizione
 class AcquisizioneDto(BaseModel):
-    id: int
     hb_value: str
     acquisition_date: str
     acquisition_uri: str
@@ -162,7 +161,6 @@ def get_acquisizioni_by_paziente(pazienteId: int, db: Session = Depends(get_db))
     # Converti le acquisizioni in formato DTO
     acquisizioni_dto = [
         AcquisizioneDto(
-            id=acq.acquisizione_id,
             hb_value=acq.hb_value,
             acquisition_date=acq.acquisition_date,
             acquisition_uri=acq.acquisition_uri
