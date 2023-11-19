@@ -193,6 +193,7 @@ def get_pazienti(db: Session = Depends(get_db)):
     # Converte gli oggetti Paziente in oggetti PazienteDto
     pazienti_dto = [
         PazienteDto(
+             id=paziente.id,
             nome=paziente.nome,
             cognome=paziente.cognome,
             data_nascita=paziente.data_nascita,
