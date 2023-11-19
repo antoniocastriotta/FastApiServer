@@ -52,8 +52,18 @@ class Acquisizione(Base):
 # Crea le tabelle nel database
 Base.metadata.create_all(bind=engine)
 
-# Modello Pydantic per il DTO del Paziente
+# Modello Pydantic per il DTO del Paziente senza ID
 class PazienteDto(BaseModel):
+    nome: str
+    cognome: str
+    data_nascita: str
+    codice_fiscale: str
+    patologia: str
+    sesso: str
+
+# Modello Pydantic per il DTO del Paziente con ID
+class PazienteDtoWithId(BaseModel):
+    id: int
     nome: str
     cognome: str
     data_nascita: str
@@ -186,14 +196,14 @@ def delete_paziente(pazienteId: int, db: Session = Depends(get_db)):
     return {"message": "Paziente e relative acquisizioni eliminate con successo"}
 
 # Implementazione della richiesta per ottenere tutti i pazienti
-@app.get("/get_pazienti", response_model=List[PazienteDto])
+@app.get("/get_pazienti", response_model=List[PazienteDtoWithId])
 def get_pazienti(db: Session = Depends(get_db)):
     pazienti = db.query(Paziente).all()
     
-    # Converte gli oggetti Paziente in oggetti PazienteDto
+    # Converte gli oggetti Paziente in oggetti PazienteDtoWithId
     pazienti_dto = [
-        PazienteDto(
-             id=paziente.id,
+        PazienteDtoWithId(
+            id=paziente.id,
             nome=paziente.nome,
             cognome=paziente.cognome,
             data_nascita=paziente.data_nascita,
