@@ -77,6 +77,13 @@ class AcquisizioneDto(BaseModel):
     acquisition_date: str
     acquisition_uri: str
 
+# Modello Pydantic per il DTO dell'Acquisizione con ID
+class AcquisizioneDtoWithId(AcquisizioneDto):
+    acquisizione_id: int
+    hb_value: str
+    acquisition_date: str
+    acquisition_uri: str
+
 # Funzione di dipendenza per ottenere la sessione del database
 def get_db():
     db = SessionLocal()
@@ -155,7 +162,7 @@ def update_paziente(pazienteId: int, pazienteDto: PazienteDto, db: Session = Dep
     return {"message": "Dati del paziente aggiornati con successo"}
 
 # Implementazione della richiesta per ottenere le acquisizioni di un paziente
-@app.get("/get_acquisizioni/{pazienteId}", response_model=List[AcquisizioneDto])
+@app.get("/get_acquisizioni/{pazienteId}", response_model=List[AcquisizioneDtoWithId])
 def get_acquisizioni_by_paziente(pazienteId: int, db: Session = Depends(get_db)):
     # Cerca il paziente nel database
     paziente = db.query(Paziente).filter(Paziente.id == pazienteId).first()
@@ -166,9 +173,10 @@ def get_acquisizioni_by_paziente(pazienteId: int, db: Session = Depends(get_db))
     # Ottieni le acquisizioni del paziente
     acquisizioni = paziente.acquisizioni
 
-    # Converti le acquisizioni in formato DTO
+    # Converti le acquisizioni in formato DTO con ID
     acquisizioni_dto = [
-        AcquisizioneDto(
+        AcquisizioneDtoWithId(
+            acquisizione_id=acq.acquisizione_id,
             hb_value=acq.hb_value,
             acquisition_date=acq.acquisition_date,
             acquisition_uri=acq.acquisition_uri
