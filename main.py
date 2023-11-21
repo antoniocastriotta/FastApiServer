@@ -7,6 +7,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import List
 import logging
+import random
 
 # Configura l'URL del tuo database AWS RDS
 DATABASE_URL = "mysql://admin:P47#$53PNde@mydb.czqucuuf76q6.eu-central-1.rds.amazonaws.com/Pazientidatabase"
@@ -222,3 +223,24 @@ def get_pazienti(db: Session = Depends(get_db)):
     ]
 
     return pazienti_dto
+
+# Implementazione della richiesta per ottenere il valore di hb
+@app.get("/get_hb_value")
+def get_hb_value():
+    # Genera un valore di hb randomico nel range da 8 a 17
+    hb_value = round(random.uniform(8, 17), 1)
+    return str(hb_value)
+
+# Implementazione della richiesta per ottenere il numero totale di acquisizioni per un paziente
+@app.get("/get_total_acquisizioni/{pazienteId}")
+def get_total_acquisizioni(pazienteId: int, db: Session = Depends(get_db)):
+    # Cerca il paziente nel database
+    paziente = db.query(Paziente).filter(Paziente.id == pazienteId).first()
+
+    if not paziente:
+        raise HTTPException(status_code=404, detail="Paziente non trovato")
+
+    # Conta il numero totale di acquisizioni per il paziente
+    total_acquisizioni = db.query(Acquisizione).filter(Acquisizione.id_paziente == pazienteId).count()
+
+    return total_acquisizioni
