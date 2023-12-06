@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Configura l'URL del database 
-DATABASE_URL = "mysql://admin:P47#$53PNde@mydb.czqucuuf76q6.eu-central-1.rds.amazonaws.com/Pazientidatabase"  # URL di esempio
+DATABASE_URL = "mysql://admin:P47#$53PNde@mydb.czqucuuf76q6.eu-central-1.rds.amazonaws.com/Pazientidatabase"  
 
 # Configurazione del motore del database
 engine = create_engine(DATABASE_URL)
@@ -50,6 +50,7 @@ class Acquisizione(Base):
     hb_value = Column(String(50))
     acquisition_date = Column(String(20))
     acquisition_uri = Column(String(255))
+    tipologia = Column(String(255))
 
     paziente = relationship("Paziente", back_populates="acquisizioni")
 
@@ -65,8 +66,9 @@ class Medico(Base):
 # Crea le tabelle nel database
 Base.metadata.create_all(bind=engine)
 
-# Modello Pydantic per il DTO del Paziente senza ID
-class PazienteDto(BaseModel):
+# Modello Pydantic per il DTO del Paziente con ID
+class PazienteDtoWithId(BaseModel):
+    id: int
     nome: str
     cognome: str
     data_nascita: str
@@ -74,9 +76,8 @@ class PazienteDto(BaseModel):
     patologia: str
     sesso: str
 
-# Modello Pydantic per il DTO del Paziente con ID
-class PazienteDtoWithId(BaseModel):
-    id: int
+# Modello Pydantic per il DTO del Paziente 
+class PazienteDto(BaseModel):
     nome: str
     cognome: str
     data_nascita: str
@@ -89,6 +90,12 @@ class AcquisizioneDto(BaseModel):
     hb_value: str
     acquisition_date: str
     acquisition_uri: str
+    tipologia: str
+
+# Modello Pydantic per il DTO del Medico
+class MedicoDto(BaseModel):
+    username: str
+    password: str
 
 # Modello Pydantic per il DTO dell'Acquisizione con ID
 class AcquisizioneDtoWithId(AcquisizioneDto):
@@ -96,11 +103,7 @@ class AcquisizioneDtoWithId(AcquisizioneDto):
     hb_value: str
     acquisition_date: str
     acquisition_uri: str
-
-# Modello Pydantic per il DTO del Medico
-class MedicoDto(BaseModel):
-    username: str
-    password: str
+    tipologia: str
 
 # Funzione di dipendenza per ottenere la sessione del database
 def get_db():
@@ -121,6 +124,7 @@ def salva_paziente(medicoId: int, pazienteDto: PazienteDto, db: Session = Depend
 
     return {"message": "Paziente salvato con successo"}
 
+# Implementazione della richiesta per ottenere la lista dei pazienti di un medico
 @app.get("/get_pazienti_by_medico/{medicoId}", response_model=List[PazienteDtoWithId])
 def get_pazienti_by_medico(medicoId: int, db: Session = Depends(get_db)):
     pazienti = db.query(Paziente).filter(Paziente.id_medico == medicoId).all()
